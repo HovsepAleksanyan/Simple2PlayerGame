@@ -1,11 +1,21 @@
 canvas {
     border: 1px solid black;
-    width: 70%;
+    width: 50%;
     display: block;
 }
 
+#game{
+    border: 1px solid red;
+    /* width: 60%; */
+    display: flex;
+    justify-content: space-between;
+}
+#gameStatus{
+    width: 48%;
+}
+
 #bulletInfo {
-    width: 70%;
+    width: 50%;
     /* border: 1px solid red; */
     display: flex;
     box-sizing: border-box;

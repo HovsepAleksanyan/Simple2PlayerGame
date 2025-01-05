@@ -6,6 +6,10 @@ const context = canvas.getContext("2d");
 const player1Bullets = document.getElementById("player1Bullets");
 const player2Bullets = document.getElementById("player2Bullets");
 
+// getting html elements for showing players' hits
+const player1Hits = document.getElementById("player1Hits");
+const player2Hits = document.getElementById("player2Hits");
+
 
 // 2 playernern el kkaravarvin u krakelu knpken sxmeluc 2 playernern el kkrake
 // aysinqn 2-i bulletneri array i mej kavelnan bulletnery iranc cordinatnerov u knkkarvin
@@ -30,7 +34,8 @@ const data = {
 
             count: 10,
             color: "blue"
-        }
+        },
+        hits: 0
     },
     player2: {
         x: 260,
@@ -48,7 +53,8 @@ const data = {
 
             count: 10,
             color: "green"
-        }
+        },
+        hits: 0
     },
 };
 
@@ -90,6 +96,34 @@ function update() {
     })
     data.player2.bullets = data.player2.bullets.filter((bullet) => {
         return bullet.x > 0;
+    })
+
+    /*
+        if a player's bullet hits the other player
+    */
+    data.player1.bullets = data.player1.bullets.filter((bullet) => { // checking that the bullet is inside the object //player 1
+        if (
+            bullet.x + data.player1.bulletData.width > data.player2.x &&
+            bullet.x < data.player2.x + data.player2.width &&
+            bullet.y >=  data.player2.y &&
+            bullet.y <= data.player2.y + data.player2.height
+        ) {
+            data.player1.hits++;
+            return false;
+        } else return true;
+    });
+    data.player2.bullets = data.player2.bullets.filter((bullet) => {
+        if (
+            bullet.x < data.player1.x + data.player1.width &&
+            bullet.x > data.player1.x &&
+            bullet.y >= data.player1.y &&
+            bullet.y <= data.player1.y + data.player1.height
+        ) {            
+            data.player2.hits++;
+            return false;
+        } else return true;
+
+        
     })
 }
 
@@ -133,7 +167,7 @@ function draw() {
         );
     })
     player2Bullets.innerHTML = data.player2.bulletData.count;
-// hos stex guzem ymbes enemm me dzevim xoski ? : spes or avelord if mif hanem u mekic nkare inch guyn petq e
+    // hos stex guzem ymbes enemm me dzevim xoski ? : spes or avelord if mif hanem u mekic nkare inch guyn petq e
 
     if (data.player1.bulletData.count === 0) {
         player1Bullets.style.color = "red";
@@ -141,6 +175,10 @@ function draw() {
     if (data.player2.bulletData.count === 0) {
         player2Bullets.style.color = "red";
     }
+
+    // drawing players' hits
+    player1Hits.innerHTML = "Player 1: " + data.player1.hits;
+    player2Hits.innerHTML = "Player 2: " + data.player2.hits;
 }
 
 
