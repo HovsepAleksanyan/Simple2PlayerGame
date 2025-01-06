@@ -63,11 +63,9 @@ function resizeCanvas() {
     // Set the canvas width and height to match the CSS dimensions
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
-    // Optionally, redraw content or maintain aspect ratio
-    draw();
 }
 
+/* All data changes/uppdates are here. This function works only with data, not for drawing */
 function update() {
     /*
         We are adding delta to y, so every time rendering the y coordinate changes or not
@@ -105,7 +103,7 @@ function update() {
         if (
             bullet.x + data.player1.bulletData.width > data.player2.x &&
             bullet.x < data.player2.x + data.player2.width &&
-            bullet.y >=  data.player2.y &&
+            bullet.y >= data.player2.y &&
             bullet.y <= data.player2.y + data.player2.height
         ) {
             data.player1.hits++;
@@ -118,15 +116,14 @@ function update() {
             bullet.x > data.player1.x &&
             bullet.y >= data.player1.y &&
             bullet.y <= data.player1.y + data.player1.height
-        ) {            
+        ) {
             data.player2.hits++;
             return false;
         } else return true;
-
-        
-    })
+    });
 }
 
+/* Drawing the game */
 function draw() {
     /*
         In this code the canvas is getting 'cleaned'
@@ -167,8 +164,8 @@ function draw() {
         );
     })
     player2Bullets.innerHTML = data.player2.bulletData.count;
-    // hos stex guzem ymbes enemm me dzevim xoski ? : spes or avelord if mif hanem u mekic nkare inch guyn petq e
 
+    // if user is out of bullets the number of bullets is red
     if (data.player1.bulletData.count === 0) {
         player1Bullets.style.color = "red";
     }
@@ -180,7 +177,6 @@ function draw() {
     player1Hits.innerHTML = "Player 1: " + data.player1.hits;
     player2Hits.innerHTML = "Player 2: " + data.player2.hits;
 }
-
 
 // Listening for keys to decide what to do
 document.addEventListener("keydown", (evt) => {
@@ -197,7 +193,7 @@ document.addEventListener("keydown", (evt) => {
                 data.player2.bullets.push({
                     x: data.player2.x,
                     y: data.player2.y + data.player2.height / 2.2,
-                });
+                })
                 data.player2.bulletData.count--;
             }
             break;
@@ -224,9 +220,24 @@ document.addEventListener("keydown", (evt) => {
 });
 
 document.addEventListener("keyup", (evt) => {
-    // stop moving the object if a key is not pressed
-    data.player1.yDelta = 0;
-    data.player2.yDelta = 0;
+    /*
+        Here we check which key is up to stop only the current player move
+        In the version before when any key was up, two players stopped
+
+        And yeah, this is chatGPT's code. But I would come to this point
+    */
+    switch (evt.code) {
+        case "KeyW":
+        case "KeyS":
+            data.player1.yDelta = 0;
+            break;
+        case "ArrowUp":
+        case "ArrowDown":
+            data.player2.yDelta = 0;
+            break;
+        default:
+            break;
+    }
 });
 
 
