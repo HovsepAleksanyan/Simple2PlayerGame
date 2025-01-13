@@ -35,7 +35,9 @@ const data = {
             count: 10,
             color: "blue"
         },
-        hits: 0
+        hits: 0,
+        topBorderTouch: false,
+        bottomBorderTouch: false
     },
     player2: {
         x: 260,
@@ -54,7 +56,9 @@ const data = {
             count: 10,
             color: "green"
         },
-        hits: 0
+        hits: 0,
+        topBorderTouch: false,
+        bottomBorderTouch: false
     },
 };
 
@@ -90,10 +94,10 @@ function update() {
         Here we are deleting each bullet that has come out from cavnas border
     */
     data.player1.bullets = data.player1.bullets.filter((bullet) => {
-        return bullet.x < canvas.width;
+        return bullet.x <= canvas.width;
     })
     data.player2.bullets = data.player2.bullets.filter((bullet) => {
-        return bullet.x > 0;
+        return bullet.x >= 0;
     })
 
     /*
@@ -101,14 +105,15 @@ function update() {
     */
     data.player1.bullets = data.player1.bullets.filter((bullet) => { // checking that the bullet is inside the object //player 1
         if (
-            bullet.x + data.player1.bulletData.width > data.player2.x &&
-            bullet.x < data.player2.x + data.player2.width &&
+            bullet.x >= data.player2.x &&
+            bullet.x + data.player1.bulletData.width <= data.player2.x + data.player2.width &&
             bullet.y >= data.player2.y &&
-            bullet.y <= data.player2.y + data.player2.height
+            bullet.y + data.player1.bulletData.height <= data.player2.y + data.player2.height
         ) {
             data.player1.hits++;
             return false;
-        } else return true;
+        };
+        return true;
     });
     data.player2.bullets = data.player2.bullets.filter((bullet) => {
         if (
@@ -119,8 +124,29 @@ function update() {
         ) {
             data.player2.hits++;
             return false;
-        } else return true;
+        };
+        return true;
     });
+
+    /*
+        If the player touches a border
+    */
+    touchBorder(data.player1);
+    touchBorder(data.player2);
+
+    // checking if players are on 0 bullets
+    if (
+        data.player1.bulletData.count === 0 &&
+        data.player2.bulletData.count === 0 &&
+        data.player1.bullets.length === 0 &&
+        data.player2.bullets.length === 0
+    ) {
+        checkWinner();
+    } else if (data.player1.hits === 10) {
+        endGame(data.player1);
+    } else if (data.player2.hits === 10) {
+        endGame(data.player2);
+    }
 }
 
 /* Drawing the game */
@@ -183,10 +209,16 @@ document.addEventListener("keydown", (evt) => {
     switch (evt.code) {
         // moving object
         case "ArrowUp":
-            data.player2.yDelta = -2;
+            if (!data.player2.topBorderTouch) {
+                data.player2.yDelta = -2;
+            }
+            data.player2.bottomBorderTouch = false;
             break;
         case "ArrowDown":
-            data.player2.yDelta = 2;
+            if (!data.player2.bottomBorderTouch) {
+                data.player2.yDelta = 2;
+            }
+            data.player2.topBorderTouch = false;
             break;
         case "Enter": // adding bullet to the array
             if (data.player2.bulletData.count > 0) {
@@ -199,10 +231,16 @@ document.addEventListener("keydown", (evt) => {
             break;
 
         case "KeyW":
-            data.player1.yDelta = -2;
+            if (!data.player1.topBorderTouch) { // will let to move only if is not touching top border
+                data.player1.yDelta = -2;
+            }
+            data.player1.bottomBorderTouch = false; // if goes up after tocuhing bottom border we set te touch to false so we can go down again
             break;
         case "KeyS":
-            data.player1.yDelta = 2;
+            if (!data.player1.bottomBorderTouch) { // if touches the bottom border will not move
+                data.player1.yDelta = 2;
+            }
+            data.player1.topBorderTouch = false; // after touching top it oes down and the touch status for top is false
             break;
         case "Space":
             if (data.player1.bulletData.count > 0) {
@@ -224,7 +262,7 @@ document.addEventListener("keyup", (evt) => {
         Here we check which key is up to stop only the current player move
         In the version before when any key was up, two players stopped
 
-        And yeah, this is chatGPT's code. But I would come to this point
+        And yeah, this is chatGPT's code. But I would come to
     */
     switch (evt.code) {
         case "KeyW":
@@ -240,6 +278,34 @@ document.addEventListener("keyup", (evt) => {
     }
 });
 
+function touchBorder(player) {
+    if (player.y <= 0) {
+        player.topBorderTouch = true;
+        player.yDelta = 0;
+    } else if (player.y + player.height >= canvas.height) {
+        player.yDelta = 0;
+        player.bottomBorderTouch = true;
+    }
+}
+
+/* The logic for checking the winner converted in the function */
+function checkWinner() {
+    if (data.player1.hits === data.player2.hits) {
+        endGame("no one")
+
+    } else if (data.player1.hits > data.player2.hits) {
+        endGame(data.player1);
+
+    } else if (data.player1.hits < data.player2.hits) {
+        endGame(data.player2);
+
+    };
+}
+
+function endGame(winner) {
+    console.log(winner);
+
+}
 
 // I don't understand this very well
 function loop() {
