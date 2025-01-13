@@ -18,6 +18,7 @@ const player2Hits = document.getElementById("player2Hits");
 
 // data about game
 const data = {
+    gameRuns: true,
     player1: {
         x: 10,
         y: 10,
@@ -94,9 +95,11 @@ function update() {
         Here we are deleting each bullet that has come out from cavnas border
     */
     data.player1.bullets = data.player1.bullets.filter((bullet) => {
+        checkWinner()
         return bullet.x <= canvas.width;
     })
     data.player2.bullets = data.player2.bullets.filter((bullet) => {
+        checkWinner()
         return bullet.x >= 0;
     })
 
@@ -110,6 +113,7 @@ function update() {
             bullet.y >= data.player2.y &&
             bullet.y + data.player1.bulletData.height <= data.player2.y + data.player2.height
         ) {
+            checkWinner()
             data.player1.hits++;
             return false;
         };
@@ -122,6 +126,7 @@ function update() {
             bullet.y >= data.player1.y &&
             bullet.y <= data.player1.y + data.player1.height
         ) {
+            checkWinner()
             data.player2.hits++;
             return false;
         };
@@ -135,18 +140,7 @@ function update() {
     touchBorder(data.player2);
 
     // checking if players are on 0 bullets
-    if (
-        data.player1.bulletData.count === 0 &&
-        data.player2.bulletData.count === 0 &&
-        data.player1.bullets.length === 0 &&
-        data.player2.bullets.length === 0
-    ) {
-        checkWinner();
-    } else if (data.player1.hits === 10) {
-        endGame(data.player1);
-    } else if (data.player2.hits === 10) {
-        endGame(data.player2);
-    }
+    checkWinner();
 }
 
 /* Drawing the game */
@@ -289,30 +283,44 @@ function touchBorder(player) {
 }
 
 /* The logic for checking the winner converted in the function */
-function checkWinner() {
-    if (data.player1.hits === data.player2.hits) {
-        endGame("no one")
-
-    } else if (data.player1.hits > data.player2.hits) {
+function  checkWinner() {
+    if (
+        data.player1.bulletData.count === 0 &&
+        data.player2.bulletData.count === 0 &&
+        data.player1.bullets.length === 0 &&
+        data.player2.bullets.length === 0
+    ) {
+        if (data.player1.hits === data.player2.hits) {
+            endGame("no one")
+    
+        } else if (data.player1.hits > data.player2.hits) {
+            endGame(data.player1);
+    
+        } else if (data.player1.hits < data.player2.hits) {
+            endGame(data.player2);
+    
+        };
+    } else if (data.player1.hits === 10) {
         endGame(data.player1);
-
-    } else if (data.player1.hits < data.player2.hits) {
+    } else if (data.player2.hits === 10) {
         endGame(data.player2);
-
-    };
+    }
+    
 }
 
 function endGame(winner) {
     console.log(winner);
-
+    data.gameRuns = false;
 }
 
 // I don't understand this very well
 function loop() {
     requestAnimationFrame(loop); // calling this function before rendering EVERY time
 
-    update();
-    draw();
+if (data.gameRuns) {
+        update();
+        draw();
+}
 }
 
 
